@@ -43,8 +43,6 @@ The backend API is deployed on Vercel.
 
 Due to Vercel’s serverless execution model and SQLite filesystem limitations,
 the Flask application throws a runtime error in production.
-
-All API endpoints were tested and verified successfully in the local environment.
 ## Notes
 - A `.gitignore` file is included in the GitHub repository.
 - Due to ZIP export limitations on Windows/mobile, `.gitignore` may not appear in the attached ZIP.
