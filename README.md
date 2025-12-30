@@ -37,3 +37,11 @@ GET /profile (Protected)
 username: admin  
 password: admin123  
 role: admin
+## Live Deployment
+
+The backend API is deployed on Vercel.
+
+Due to Vercel’s serverless execution model and SQLite filesystem limitations,
+the Flask application throws a runtime error in production.
+
+All API endpoints were tested and verified successfully in the local environment.
