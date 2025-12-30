@@ -1,30 +1,40 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from config import Config
+from models import db, User
+from auth import auth_bp
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
-# Simple in-memory list (no database)
-items = []
+db.init_app(app)
+jwt = JWTManager(app)
+
+app.register_blueprint(auth_bp)
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 @app.route("/")
 def home():
-    return jsonify({"message": "Backend API is running"})
+    return jsonify({"message": "User Management System Running"})
 
-@app.route("/items", methods=["GET"])
-def get_items():
-    return jsonify(items)
+@app.route("/profile")
+@jwt_required()
+def profile():
+    current_user = get_jwt_identity()
+    return jsonify(current_user)
 
-@app.route("/items", methods=["POST"])
-def add_item():
-    data = request.json
-    items.append(data)
-    return jsonify({"message": "Item added successfully"}), 201
+@app.route("/users")
+@jwt_required()
+def get_users():
+    current_user = get_jwt_identity()
+    if current_user["role"] != "admin":
+        return jsonify({"message": "Admin access required"}), 403
 
-@app.route("/items/<int:index>", methods=["DELETE"])
-def delete_item(index):
-    if index < len(items):
-        items.pop(index)
-        return jsonify({"message": "Item deleted"})
-    return jsonify({"error": "Invalid index"}), 400
+    users = User.query.all()
+    return jsonify([{"username": u.username, "role": u.role} for u in users])
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
